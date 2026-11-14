@@ -1,0 +1,29 @@
+[project]
+name = "parkingradio"
+version = "0.1.0"
+description = "Tools that automate operating Parking Radio"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # 8.2 is the first where a group without a command shows its help on stderr and exits with 2.
+    "click>=8.2",
+]
+
+[project.scripts]
+parkingradio = "parkingradio.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.8,<0.14"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B"]
