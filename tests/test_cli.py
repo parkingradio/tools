@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import sys
 from importlib.metadata import version
@@ -33,6 +34,7 @@ def test_usage_error():
 
 def test_version():
     # Through the `parkingradio` script that installing the package creates, next to the interpreter.
-    script = Path(sys.executable).parent / "parkingradio"
+    script = shutil.which("parkingradio", path=Path(sys.executable).parent)
+    assert script is not None
     result = subprocess.run([script, "--version"], capture_output=True, text=True, check=True)
     assert version("parkingradio") in result.stdout
