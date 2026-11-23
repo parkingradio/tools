@@ -6,18 +6,21 @@ is in [parkingradio/website](https://github.com/parkingradio/website).
 
 ## Design
 
-See [docs/design](docs/design/README.md) for what the tool does: its conventions, and each of its commands.
+See [docs/design](https://github.com/parkingradio/tools/blob/main/docs/design/README.md) for what the tool does: its
+conventions, and each of its commands.
 
 ## Installing
 
 With [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv tool install git+https://github.com/parkingradio/tools
+uv tool install parkingradio
 parkingradio --help
 ```
 
-`uv tool upgrade parkingradio` installs the latest version.
+`uv tool upgrade parkingradio` installs the latest version. `uv tool install parkingradio==0.1.0` installs a given
+version, e.g. to go back to the previous one. `uv tool upgrade` then stays on it: `uv tool install parkingradio@latest`
+installs the latest version again. The [releases](https://github.com/parkingradio/tools/releases) list the versions.
 
 ## Connecting to the site
 
@@ -60,3 +63,29 @@ CI runs these checks: see `.github/workflows/test.yml`. The tests never reach a 
 system's credential store: they use fakes of them (see `tests/conftest.py`). To try the tool on a development server of
 the site (see the site's README), use `--site` or `PARKINGRADIO_SITE`, as in [Connecting to the
 site](#connecting-to-the-site).
+
+## Releasing
+
+A release publishes the version in `pyproject.toml` to [PyPI](https://pypi.org/project/parkingradio/), from which
+admins install the tool. Only release once what it relies on is deployed on the production site.
+
+1. Bump the version in a PR, e.g. with `uv version --bump minor`, which also updates `uv.lock`, and merge it.
+2. Tag the merged commit with the version, and push the tag:
+   ```sh
+   git switch main && git pull
+   git tag v0.2.0
+   git push origin v0.2.0
+   ```
+3. The tag runs `.github/workflows/release.yml`, which checks and builds the release, then waits for a maintainer to
+   approve publishing it, in the repository's `pypi` environment. Once it's published, it creates the tag's GitHub
+   Release, with notes generated from the PRs merged since the previous one.
+
+When the workflow fails, publishing included, and the fix is outside the repository, e.g. in the trusted publisher's
+settings on PyPI, re-run the failed jobs, as when only the GitHub Release fails. When the fix needs a commit, reject the
+run if it's still waiting for approval, since approving it would publish the previous build, delete the tag
+(`git tag -d v0.2.0 && git push origin :refs/tags/v0.2.0`), fix it in a PR, and tag the merged commit. A version can
+never be published to PyPI again, even once deleted from it: a bad release is fixed with a new version.
+
+Publishing relies on a one-time setup: on PyPI, a trusted publisher for the project `parkingradio`, with the owner
+`parkingradio`, the repository `tools`, the workflow `release.yml` and the environment `pypi`; and on GitHub, the
+`pypi` environment, with a required reviewer, whose deployments are limited to `v*` tags.

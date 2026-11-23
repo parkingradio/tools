@@ -1,6 +1,6 @@
 #
 # Lint and check formatting once, and run the tests on the oldest and the newest Python the tool supports, on every
-# system it supports.
+# system it supports. release.yml runs it too, before publishing.
 #
 
 name: Test
@@ -9,6 +9,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
