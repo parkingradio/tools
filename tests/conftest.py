@@ -114,9 +114,8 @@ class FakeSite:
         # Changes the token endpoint's answers.
         self.tamper = lambda tokens: tokens
         self.authorization_urls: list[str] = []
-        # The browser's requests to the tool, with the tool's answers.
-        self.callbacks: list[tuple[dict, httpx.Response]] = []
-        self.threads: list[threading.Thread] = []
+        self._callbacks: list[tuple[dict, httpx.Response]] = []
+        self._threads: list[threading.Thread] = []
 
     @property
     def refreshes(self):
@@ -127,6 +126,17 @@ class FakeSite:
         return [connection for connection in self.connections if not connection.ended]
 
     # The browser.
+
+    @property
+    def callbacks(self):
+        """The browser's requests to the tool, with the tool's answers, once the browser is done, which can be after the
+        tool is."""
+        self.wait_for_browser()
+        return self._callbacks
+
+    def wait_for_browser(self):
+        for thread in self._threads:
+            thread.join()
 
     def open_browser(self, url):
         self.authorization_urls.append(url)
@@ -139,11 +149,11 @@ class FakeSite:
                 for answer in answers:
                     path = answer.pop("path", "/callback")
                     response = client.get(params["redirect_uri"].replace("/callback", path), params=answer)
-                    self.callbacks.append((answer, response))
+                    self._callbacks.append((answer, response))
 
         thread = threading.Thread(target=go_back)
         thread.start()
-        self.threads.append(thread)
+        self._threads.append(thread)
         return True
 
     def allow(self, params):
@@ -283,5 +293,4 @@ def fake_site(monkeypatch):
     monkeypatch.setattr(site, "transport", httpx.MockTransport(fake.handle))
     monkeypatch.setattr(oauth, "open_browser", fake.open_browser)
     yield fake
-    for thread in fake.threads:
-        thread.join()
+    fake.wait_for_browser()
