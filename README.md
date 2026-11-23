@@ -79,13 +79,3 @@ admins install the tool. Only release once what it relies on is deployed on the 
 3. The tag runs `.github/workflows/release.yml`, which checks and builds the release, then waits for a maintainer to
    approve publishing it, in the repository's `pypi` environment. Once it's published, it creates the tag's GitHub
    Release, with notes generated from the PRs merged since the previous one.
-
-When the workflow fails, publishing included, and the fix is outside the repository, e.g. in the trusted publisher's
-settings on PyPI, re-run the failed jobs, as when only the GitHub Release fails. When the fix needs a commit, reject the
-run if it's still waiting for approval, since approving it would publish the previous build, delete the tag
-(`git tag -d v0.2.0 && git push origin :refs/tags/v0.2.0`), fix it in a PR, and tag the merged commit. A version can
-never be published to PyPI again, even once deleted from it: a bad release is fixed with a new version.
-
-Publishing relies on a one-time setup: on PyPI, a trusted publisher for the project `parkingradio`, with the owner
-`parkingradio`, the repository `tools`, the workflow `release.yml` and the environment `pypi`; and on GitHub, the
-`pypi` environment, with a required reviewer, whose deployments are limited to `v*` tags.
