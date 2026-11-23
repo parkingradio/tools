@@ -129,8 +129,8 @@ class FakeSite:
 
     @property
     def callbacks(self):
-        """The browser's requests to the tool, with the tool's answers, once the browser is done, which can be after the
-        tool is."""
+        """The browser's requests to the tool, with the tool's answers. Waits for the browser first: it can finish after
+        the tool."""
         self.wait_for_browser()
         return self._callbacks
 
