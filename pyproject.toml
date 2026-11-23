@@ -3,6 +3,8 @@ name = "parkingradio"
 version = "0.1.0"
 description = "Tools that automate operating Parking Radio"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
     # 8.2 is the first where a group without a command shows its help on stderr and exits with 2.
@@ -12,6 +14,12 @@ dependencies = [
     "httpx>=0.24",
     "keyring>=23",
 ]
+
+[project.urls]
+Source = "https://github.com/parkingradio/tools"
+Documentation = "https://github.com/parkingradio/tools/blob/main/docs/design/README.md"
+Changelog = "https://github.com/parkingradio/tools/releases"
+Issues = "https://github.com/parkingradio/tools/issues"
 
 [project.scripts]
 parkingradio = "parkingradio.cli:main"
